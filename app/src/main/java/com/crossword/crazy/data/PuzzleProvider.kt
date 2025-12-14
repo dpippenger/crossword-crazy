@@ -22,7 +22,7 @@ object PuzzleProvider {
     private fun createSimplePuzzle(): CrosswordPuzzle {
         val pattern = listOf(
             "CAT",
-            "A#O",
+            "ARE",
             "RED"
         )
 
@@ -30,10 +30,11 @@ object PuzzleProvider {
 
         val clues = listOf(
             Clue(1, "Feline pet", Direction.ACROSS, 0, 0, 3, "CAT"),
-            Clue(4, "Primary color", Direction.ACROSS, 2, 0, 3, "RED"),
+            Clue(2, "Exist", Direction.ACROSS, 1, 0, 3, "ARE"),
+            Clue(3, "Primary color", Direction.ACROSS, 2, 0, 3, "RED"),
             Clue(1, "Automobile", Direction.DOWN, 0, 0, 3, "CAR"),
-            Clue(2, "Insect", Direction.DOWN, 0, 1, 2, "AT"),
-            Clue(3, "Pair", Direction.DOWN, 0, 2, 3, "TOD")
+            Clue(2, "Present tense of to be", Direction.DOWN, 0, 1, 3, "ARE"),
+            Clue(3, "Conclusion", Direction.DOWN, 0, 2, 3, "TED")
         )
 
         return CrosswordPuzzle("Simple Puzzle", grid, clues)
@@ -41,21 +42,23 @@ object PuzzleProvider {
 
     private fun createMediumPuzzle(): CrosswordPuzzle {
         val pattern = listOf(
-            "JAVA",
-            "A#U#",
-            "ZONE",
-            "#O#S"
+            "CODE",
+            "OMEN",
+            "DEMO",
+            "ENDS"
         )
 
         val grid = buildGrid(pattern)
 
         val clues = listOf(
-            Clue(1, "Popular programming language", Direction.ACROSS, 0, 0, 4, "JAVA"),
-            Clue(5, "Area or region", Direction.ACROSS, 2, 0, 4, "ZONE"),
-            Clue(1, "Type of music", Direction.DOWN, 0, 0, 3, "JAZ"),
-            Clue(2, "Car", Direction.DOWN, 0, 1, 2, "AU"),
-            Clue(3, "Vampire", Direction.DOWN, 0, 2, 2, "VO"),
-            Clue(4, "Position", Direction.DOWN, 0, 3, 4, "ANES")
+            Clue(1, "Program instructions", Direction.ACROSS, 0, 0, 4, "CODE"),
+            Clue(2, "Sign or portent", Direction.ACROSS, 1, 0, 4, "OMEN"),
+            Clue(3, "Sample version", Direction.ACROSS, 2, 0, 4, "DEMO"),
+            Clue(4, "Finishes", Direction.ACROSS, 3, 0, 4, "ENDS"),
+            Clue(1, "Telephone device", Direction.DOWN, 0, 0, 4, "CODE"),
+            Clue(2, "Not young", Direction.DOWN, 0, 1, 4, "OMEN"),
+            Clue(3, "Devil", Direction.DOWN, 0, 2, 4, "DEMO"),
+            Clue(4, "Large birds", Direction.DOWN, 0, 3, 4, "ENDS")
         )
 
         return CrosswordPuzzle("Medium Puzzle", grid, clues)
