@@ -42,23 +42,23 @@ object PuzzleProvider {
 
     private fun createMediumPuzzle(): CrosswordPuzzle {
         val pattern = listOf(
-            "CODE",
-            "OMEN",
-            "DEMO",
-            "ENDS"
+            "TEAM",
+            "EACH",
+            "ACHE",
+            "MHER"
         )
 
         val grid = buildGrid(pattern)
 
         val clues = listOf(
-            Clue(1, "Program instructions", Direction.ACROSS, 0, 0, 4, "CODE"),
-            Clue(2, "Sign or portent", Direction.ACROSS, 1, 0, 4, "OMEN"),
-            Clue(3, "Sample version", Direction.ACROSS, 2, 0, 4, "DEMO"),
-            Clue(4, "Finishes", Direction.ACROSS, 3, 0, 4, "ENDS"),
-            Clue(1, "Telephone device", Direction.DOWN, 0, 0, 4, "CODE"),
-            Clue(2, "Not young", Direction.DOWN, 0, 1, 4, "OMEN"),
-            Clue(3, "Devil", Direction.DOWN, 0, 2, 4, "DEMO"),
-            Clue(4, "Large birds", Direction.DOWN, 0, 3, 4, "ENDS")
+            Clue(1, "Group of players", Direction.ACROSS, 0, 0, 4, "TEAM"),
+            Clue(2, "Every one", Direction.ACROSS, 1, 0, 4, "EACH"),
+            Clue(3, "Pain or hurt", Direction.ACROSS, 2, 0, 4, "ACHE"),
+            Clue(4, "M plus her", Direction.ACROSS, 3, 0, 4, "MHER"),
+            Clue(1, "Group of players", Direction.DOWN, 0, 0, 4, "TEAM"),
+            Clue(2, "Every one", Direction.DOWN, 0, 1, 4, "EACH"),
+            Clue(3, "Pain or hurt", Direction.DOWN, 0, 2, 4, "ACHE"),
+            Clue(4, "M plus her", Direction.DOWN, 0, 3, 4, "MHER")
         )
 
         return CrosswordPuzzle("Medium Puzzle", grid, clues)
