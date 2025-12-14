@@ -1,0 +1,80 @@
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build Release APK
+      run: ./gradlew assembleRelease --stacktrace
+
+    - name: Get version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Crossword Crazy ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Crossword Crazy ${{ steps.get_version.outputs.VERSION }}
+
+          ### What's New
+          - Interactive crossword puzzle game for Android
+          - Jetpack Compose UI with Material Design 3
+          - Multiple puzzle difficulties
+          - Check answers and reveal clues functionality
+
+          ### Installation
+          Download the APK below and install it on your Android device (requires Android 7.0 or higher).
+
+          ### Technical Details
+          - Min SDK: 24 (Android 7.0)
+          - Target SDK: 34 (Android 14)
+          - Architecture: Universal APK (supports all architectures)
+        draft: false
+        prerelease: false
+
+    - name: Upload Release APK
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./app/build/outputs/apk/release/app-release-unsigned.apk
+        asset_name: crossword-crazy-${{ steps.get_version.outputs.VERSION }}.apk
+        asset_content_type: application/vnd.android.package-archive
+
+    - name: Upload Debug Symbols (if available)
+      if: hashFiles('app/build/outputs/mapping/release/mapping.txt') != ''
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./app/build/outputs/mapping/release/mapping.txt
+        asset_name: mapping-${{ steps.get_version.outputs.VERSION }}.txt
+        asset_content_type: text/plain
