@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Crossword Crazy</string>
+    <string name="new_game">New Game</string>
+    <string name="check_answers">Check Answers</string>
+    <string name="reveal_answer">Reveal Answer</string>
+    <string name="clear_all">Clear All</string>
+    <string name="across">Across</string>
+    <string name="down">Down</string>
+    <string name="congratulations">Congratulations!</string>
+    <string name="puzzle_complete">Puzzle Complete!</string>
+    <string name="incorrect_answers">Some answers are incorrect</string>
+</resources>
