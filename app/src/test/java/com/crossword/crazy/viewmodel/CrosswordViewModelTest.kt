@@ -1,5 +1,6 @@
 package com.crossword.crazy.viewmodel
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.crossword.crazy.model.Direction
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -7,10 +8,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CrosswordViewModelTest {
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: CrosswordViewModel
     private val testDispatcher = StandardTestDispatcher()
