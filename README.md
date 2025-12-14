@@ -69,10 +69,40 @@ The project uses GitHub Actions for CI/CD:
 
 - **Build**: Compiles the app and runs static analysis
 - **Unit Tests**: Executes all unit tests
-- **Instrumented Tests**: Runs UI tests on an Android emulator
+- **Instrumented Tests**: Runs UI tests on an Android emulator (optional)
 - **APK Generation**: Builds release APK artifacts
 
 See [`.github/workflows/android-ci.yml`](.github/workflows/android-ci.yml) for details.
+
+## Releases
+
+The project automatically creates GitHub releases with APK artifacts when you push a version tag.
+
+### Creating a Release
+
+To create a new release:
+
+```bash
+# Create and push a version tag
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The GitHub Actions workflow will automatically:
+1. Build the release APK
+2. Create a GitHub release with release notes
+3. Attach the APK to the release
+
+The APK will be named `crossword-crazy-v1.0.0.apk` and can be downloaded from the [Releases](../../releases) page.
+
+### Version Numbering
+
+We use semantic versioning (MAJOR.MINOR.PATCH):
+- **MAJOR**: Incompatible API changes
+- **MINOR**: New functionality in a backwards compatible manner
+- **PATCH**: Backwards compatible bug fixes
+
+Tags should follow the format: `v1.0.0`, `v1.1.0`, `v2.0.0`, etc.
 
 ## Building
 
