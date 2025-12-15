@@ -2,6 +2,11 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("jacoco")
+    id("org.cyclonedx.bom")
+}
+
+dependencyLocking {
+    lockAllConfigurations()
 }
 
 android {
