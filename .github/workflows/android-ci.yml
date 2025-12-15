@@ -28,8 +28,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug assembleRelease --stacktrace
 
-    - name: Run unit tests
-      run: ./gradlew test --stacktrace
+    - name: Run unit tests with coverage
+      run: ./gradlew jacocoTestReport --stacktrace
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -39,6 +39,13 @@ jobs:
         path: |
           app/build/test-results/
           app/build/reports/tests/
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-report
+        path: app/build/reports/jacoco/
 
     - name: Upload APK artifacts
       uses: actions/upload-artifact@v4
