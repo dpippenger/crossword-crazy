@@ -78,6 +78,14 @@ app/src/main/java/com/crossword/crazy/
 - **android-ci.yml**: Builds APKs and runs unit tests on push/PR
 - **release.yml**: Creates GitHub release with APK on version tags (`v*`)
 
+## Git Workflow
+
+**Never push directly to main.** Always:
+1. Create a feature/fix branch
+2. Commit changes to the branch
+3. Push and create a PR
+4. Merge via PR after review
+
 ## Common Tasks
 
 **Adding a new puzzle**: Edit `PuzzleProvider.kt` and add to the puzzles list
