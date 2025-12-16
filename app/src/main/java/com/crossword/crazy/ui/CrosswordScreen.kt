@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.crossword.crazy.viewmodel.CheckResult
@@ -24,7 +23,6 @@ fun CrosswordScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -164,7 +162,7 @@ fun CrosswordScreen(
                                         true
                                     }
                                     keyEvent.key.keyCode in Key.A.keyCode..Key.Z.keyCode -> {
-                                        val char = ('A'.code + (keyEvent.key.keyCode - Key.A.keyCode)).toChar()
+                                        val char = Char(('A'.code + (keyEvent.key.keyCode - Key.A.keyCode)).toInt())
                                         viewModel.onLetterInput(char)
                                         true
                                     }
