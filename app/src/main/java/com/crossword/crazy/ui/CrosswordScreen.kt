@@ -25,7 +25,11 @@ fun CrosswordScreen(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
+            // FocusRequester not yet attached - safe to ignore in tests
+        }
     }
 
     Scaffold(
