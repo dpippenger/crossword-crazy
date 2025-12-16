@@ -118,7 +118,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/ComposableSingletons*.*",
         "**/*_Factory.*",
         "**/*_MembersInjector.*",
-        "**/ui/theme/**"
+        "**/ui/**"  // UI composables are tested via instrumented tests
     )
 
     val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug") {

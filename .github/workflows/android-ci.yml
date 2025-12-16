@@ -40,6 +40,69 @@ jobs:
           app/build/test-results/
           app/build/reports/tests/
 
+    - name: Generate coverage summary
+      if: always()
+      run: |
+        if [ -f "app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml" ]; then
+          # Parse JaCoCo XML for coverage metrics
+          REPORT="app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+
+          # Extract instruction coverage
+          INST_MISSED=$(grep -oP 'type="INSTRUCTION" missed="\K[0-9]+' "$REPORT" | head -1)
+          INST_COVERED=$(grep -oP 'type="INSTRUCTION"[^>]*covered="\K[0-9]+' "$REPORT" | head -1)
+          INST_TOTAL=$((INST_MISSED + INST_COVERED))
+          if [ "$INST_TOTAL" -gt 0 ]; then
+            INST_PCT=$((INST_COVERED * 100 / INST_TOTAL))
+          else
+            INST_PCT=0
+          fi
+
+          # Extract line coverage
+          LINE_MISSED=$(grep -oP 'type="LINE" missed="\K[0-9]+' "$REPORT" | head -1)
+          LINE_COVERED=$(grep -oP 'type="LINE"[^>]*covered="\K[0-9]+' "$REPORT" | head -1)
+          LINE_TOTAL=$((LINE_MISSED + LINE_COVERED))
+          if [ "$LINE_TOTAL" -gt 0 ]; then
+            LINE_PCT=$((LINE_COVERED * 100 / LINE_TOTAL))
+          else
+            LINE_PCT=0
+          fi
+
+          # Extract branch coverage
+          BRANCH_MISSED=$(grep -oP 'type="BRANCH" missed="\K[0-9]+' "$REPORT" | head -1)
+          BRANCH_COVERED=$(grep -oP 'type="BRANCH"[^>]*covered="\K[0-9]+' "$REPORT" | head -1)
+          BRANCH_TOTAL=$((BRANCH_MISSED + BRANCH_COVERED))
+          if [ "$BRANCH_TOTAL" -gt 0 ]; then
+            BRANCH_PCT=$((BRANCH_COVERED * 100 / BRANCH_TOTAL))
+          else
+            BRANCH_PCT=0
+          fi
+
+          # Extract method coverage
+          METHOD_MISSED=$(grep -oP 'type="METHOD" missed="\K[0-9]+' "$REPORT" | head -1)
+          METHOD_COVERED=$(grep -oP 'type="METHOD"[^>]*covered="\K[0-9]+' "$REPORT" | head -1)
+          METHOD_TOTAL=$((METHOD_MISSED + METHOD_COVERED))
+          if [ "$METHOD_TOTAL" -gt 0 ]; then
+            METHOD_PCT=$((METHOD_COVERED * 100 / METHOD_TOTAL))
+          else
+            METHOD_PCT=0
+          fi
+
+          # Write summary
+          echo "## 📊 Test Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Covered | Total | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|---------|-------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Instructions | $INST_COVERED | $INST_TOTAL | $INST_PCT% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines | $LINE_COVERED | $LINE_TOTAL | $LINE_PCT% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branches | $BRANCH_COVERED | $BRANCH_TOTAL | $BRANCH_PCT% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Methods | $METHOD_COVERED | $METHOD_TOTAL | $METHOD_PCT% |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📁 [Download full HTML report](../artifacts/coverage-report)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ⚠️ Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "Coverage report not found. Tests may have failed." >> $GITHUB_STEP_SUMMARY
+        fi
+
     - name: Upload coverage report
       uses: actions/upload-artifact@v4
       if: always()
@@ -59,7 +122,7 @@ jobs:
   instrumented-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    if: false  # Disabled for now to speed up CI
+    if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout code
