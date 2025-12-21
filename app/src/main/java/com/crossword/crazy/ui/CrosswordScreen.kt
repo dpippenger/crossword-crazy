@@ -24,14 +24,6 @@ fun CrosswordScreen(
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        try {
-            focusRequester.requestFocus()
-        } catch (_: IllegalStateException) {
-            // FocusRequester not yet attached - safe to ignore in tests
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
