@@ -1,17 +1,37 @@
 package com.crossword.crazy.ui
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.key.*
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.dp
+import com.crossword.crazy.model.Clue
 import com.crossword.crazy.viewmodel.CheckResult
 import com.crossword.crazy.viewmodel.CrosswordViewModel
 
@@ -24,12 +44,28 @@ fun CrosswordScreen(
     val uiState by viewModel.uiState.collectAsState()
     val focusRequester = remember { FocusRequester() }
 
+    val onCellClick = remember(viewModel, focusRequester) { { row: Int, col: Int ->
+        viewModel.onCellSelected(row, col)
+        focusRequester.requestFocus()
+    } }
+
+    val onClueClick = remember(viewModel, focusRequester) { { clue: Clue ->
+        viewModel.onClueSelected(clue)
+        focusRequester.requestFocus()
+    } }
+
+    val onNewGameClick = remember(viewModel) { { viewModel.loadNewPuzzle(0) } }
+    val onCheckAnswersClick = remember(viewModel) { { viewModel.checkAnswers() } }
+    val onRevealAnswerClick = remember(viewModel) { { viewModel.revealCurrentAnswer() } }
+    val onClearAllClick = remember(viewModel) { { viewModel.clearAll() } }
+    val onDismissCompletionDialog = remember(viewModel) { { viewModel.dismissCompletionDialog() } }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(uiState.puzzle?.title ?: "Crossword Crazy") },
                 actions = {
-                    TextButton(onClick = { viewModel.loadNewPuzzle(0) }) {
+                    TextButton(onClick = onNewGameClick) {
                         Text("New Game")
                     }
                 }
@@ -45,10 +81,7 @@ fun CrosswordScreen(
                 CrosswordGrid(
                     puzzle = puzzle,
                     selectedCell = uiState.selectedCell,
-                    onCellClick = { row, col ->
-                        viewModel.onCellSelected(row, col)
-                        focusRequester.requestFocus()
-                    },
+                    onCellClick = onCellClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(0.4f)
@@ -76,19 +109,19 @@ fun CrosswordScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { viewModel.checkAnswers() },
+                        onClick = onCheckAnswersClick,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Check")
                     }
                     Button(
-                        onClick = { viewModel.revealCurrentAnswer() },
+                        onClick = onRevealAnswerClick,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Reveal")
                     }
                     Button(
-                        onClick = { viewModel.clearAll() },
+                        onClick = onClearAllClick,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Clear")
@@ -135,10 +168,7 @@ fun CrosswordScreen(
                     acrossClues = puzzle.acrossClues,
                     downClues = puzzle.downClues,
                     selectedClue = uiState.selectedClue,
-                    onClueClick = { clue ->
-                        viewModel.onClueSelected(clue)
-                        focusRequester.requestFocus()
-                    },
+                    onClueClick = onClueClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(0.6f)
@@ -153,13 +183,13 @@ fun CrosswordScreen(
                         .onKeyEvent { keyEvent ->
                             if (keyEvent.type == KeyEventType.KeyDown) {
                                 when {
-                                    keyEvent.key == Key.Backspace || keyEvent.key == Key.Delete -> {
+                                    keyEvent.key == Key.Backspace -> {
                                         viewModel.onBackspace()
                                         true
                                     }
-                                    keyEvent.key.keyCode in Key.A.keyCode..Key.Z.keyCode -> {
-                                        val char = Char(('A'.code + (keyEvent.key.keyCode - Key.A.keyCode)).toInt())
-                                        viewModel.onLetterInput(char)
+                                    keyEvent.key.nativeKeyCode in 65..90 -> {
+                                        val char = (keyEvent.key.nativeKeyCode + 32).toChar()
+                                        viewModel.onLetterInput(char.uppercaseChar())
                                         true
                                     }
                                     else -> false
@@ -174,11 +204,11 @@ fun CrosswordScreen(
 
         if (uiState.showCompletionDialog) {
             AlertDialog(
-                onDismissRequest = { viewModel.dismissCompletionDialog() },
+                onDismissRequest = onDismissCompletionDialog,
                 title = { Text("Congratulations!") },
                 text = { Text("You've completed the puzzle correctly!") },
                 confirmButton = {
-                    TextButton(onClick = { viewModel.dismissCompletionDialog() }) {
+                    TextButton(onClick = onDismissCompletionDialog) {
                         Text("OK")
                     }
                 }
