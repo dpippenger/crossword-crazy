@@ -183,14 +183,18 @@ fun CrosswordScreen(
                         .onKeyEvent { keyEvent ->
                             if (keyEvent.type == KeyEventType.KeyDown) {
                                 when {
-                                    keyEvent.key == Key.Backspace -> {
+                                    keyEvent.key == Key.Backspace || keyEvent.key == Key.Delete -> {
                                         viewModel.onBackspace()
                                         true
                                     }
-                                    keyEvent.key.nativeKeyCode in 65..90 -> {
-                                        val char = (keyEvent.key.nativeKeyCode + 32).toChar()
-                                        viewModel.onLetterInput(char.uppercaseChar())
-                                        true
+                                    keyEvent.utf16CodePoint != 0 -> {
+                                        val char = keyEvent.utf16CodePoint.toChar()
+                                        if (char.isLetter()) {
+                                            viewModel.onLetterInput(char.uppercaseChar())
+                                            true
+                                        } else {
+                                            false
+                                        }
                                     }
                                     else -> false
                                 }
