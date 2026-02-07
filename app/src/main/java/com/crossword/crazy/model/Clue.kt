@@ -12,11 +12,16 @@ data class Clue(
     fun getCells(grid: List<List<Cell>>): List<Cell> {
         val cells = mutableListOf<Cell>()
         for (i in 0 until length) {
-            val cell = when (direction) {
-                Direction.ACROSS -> grid[startRow][startCol + i]
-                Direction.DOWN -> grid[startRow + i][startCol]
+            val row = if (direction == Direction.DOWN) startRow + i else startRow
+            val col = if (direction == Direction.ACROSS) startCol + i else startCol
+
+            val cell = grid.getOrNull(row)?.getOrNull(col)
+            if (cell != null) {
+                cells.add(cell)
+            } else {
+                // Clue definition is malformed (out of bounds). Stop processing.
+                break
             }
-            cells.add(cell)
         }
         return cells
     }

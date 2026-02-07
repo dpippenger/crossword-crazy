@@ -90,40 +90,47 @@ class CrosswordViewModelTest {
     @Test
     fun `onLetterInput updates cell`() {
         val state = viewModel.uiState.value
-        val puzzle = state.puzzle!!
         val (row, col) = state.selectedCell!!
 
         viewModel.onLetterInput('A')
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val cell = puzzle.getCell(row, col)
+        val updatedPuzzle = viewModel.uiState.value.puzzle!!
+        val cell = updatedPuzzle.getCell(row, col)
         assertThat(cell?.userInput).isEqualTo('A')
     }
 
     @Test
     fun `onBackspace clears cell input`() {
         val state = viewModel.uiState.value
-        val puzzle = state.puzzle!!
         val (row, col) = state.selectedCell!!
 
         viewModel.onLetterInput('A')
         testDispatcher.scheduler.advanceUntilIdle()
 
+        // After input, cursor moves to next cell. Select back to original cell.
+        viewModel.onCellSelected(row, col)
+        testDispatcher.scheduler.advanceUntilIdle()
+
         viewModel.onBackspace()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        val cell = puzzle.getCell(row, col)
+        val updatedPuzzle = viewModel.uiState.value.puzzle!!
+        val cell = updatedPuzzle.getCell(row, col)
         assertThat(cell?.userInput).isNull()
     }
 
     @Test
     fun `checkAnswers returns correct when all answers right`() {
-        val state = viewModel.uiState.value
-        val puzzle = state.puzzle!!
+        val puzzle = viewModel.uiState.value.puzzle!!
 
+        // Fill all cells with correct answers via ViewModel
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = cell.answer
+                viewModel.onCellSelected(cell.row, cell.col)
+                testDispatcher.scheduler.advanceUntilIdle()
+                viewModel.onLetterInput(cell.answer!!)
+                testDispatcher.scheduler.advanceUntilIdle()
             }
         }
 
@@ -136,12 +143,15 @@ class CrosswordViewModelTest {
 
     @Test
     fun `checkAnswers returns incorrect when answers wrong`() {
-        val state = viewModel.uiState.value
-        val puzzle = state.puzzle!!
+        val puzzle = viewModel.uiState.value.puzzle!!
 
+        // Fill all cells with wrong answers via ViewModel
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = 'X'
+                viewModel.onCellSelected(cell.row, cell.col)
+                testDispatcher.scheduler.advanceUntilIdle()
+                viewModel.onLetterInput('X')
+                testDispatcher.scheduler.advanceUntilIdle()
             }
         }
 
@@ -154,19 +164,23 @@ class CrosswordViewModelTest {
 
     @Test
     fun `clearAll removes all user input`() {
-        val state = viewModel.uiState.value
-        val puzzle = state.puzzle!!
+        val puzzle = viewModel.uiState.value.puzzle!!
 
+        // Fill cells via ViewModel
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = 'X'
+                viewModel.onCellSelected(cell.row, cell.col)
+                testDispatcher.scheduler.advanceUntilIdle()
+                viewModel.onLetterInput('X')
+                testDispatcher.scheduler.advanceUntilIdle()
             }
         }
 
         viewModel.clearAll()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertThat(puzzle.grid.flatten().all { it.userInput == null }).isTrue()
+        val clearedPuzzle = viewModel.uiState.value.puzzle!!
+        assertThat(clearedPuzzle.grid.flatten().all { it.userInput == null }).isTrue()
     }
 
     @Test

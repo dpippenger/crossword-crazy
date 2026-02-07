@@ -5,7 +5,7 @@ data class Cell(
     val col: Int,
     val answer: Char?,
     val number: Int? = null,
-    var userInput: Char? = null,
+    val userInput: Char? = null,
     val isBlack: Boolean = answer == null
 ) {
     val isEmpty: Boolean
@@ -13,8 +13,4 @@ data class Cell(
 
     val isCorrect: Boolean
         get() = !isBlack && userInput != null && userInput == answer
-
-    fun clear() {
-        userInput = null
-    }
 }

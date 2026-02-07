@@ -34,14 +34,38 @@ data class CrosswordPuzzle(
         }
     }
 
-    fun clearAll() {
-        grid.flatten().forEach { it.clear() }
+    fun withCellInput(row: Int, col: Int, input: Char?): CrosswordPuzzle {
+        val cell = getCell(row, col) ?: return this
+        if (cell.isBlack || cell.userInput == input) return this
+        val newGrid = grid.mapIndexed { r, rowCells ->
+            if (r == row) {
+                rowCells.mapIndexed { c, c2 ->
+                    if (c == col) c2.copy(userInput = input) else c2
+                }
+            } else {
+                rowCells
+            }
+        }
+        return copy(grid = newGrid)
     }
 
-    fun revealAnswer(clue: Clue) {
-        val cells = clue.getCells(grid)
-        cells.forEach { cell ->
-            cell.userInput = cell.answer
+    fun withClearedInput(): CrosswordPuzzle {
+        val newGrid = grid.map { row ->
+            row.map { cell ->
+                if (!cell.isBlack && cell.userInput != null) cell.copy(userInput = null) else cell
+            }
         }
+        return copy(grid = newGrid)
+    }
+
+    fun withRevealedClue(clue: Clue): CrosswordPuzzle {
+        val clueCells = clue.getCells(grid).associate { Pair(it.row, it.col) to it.answer }
+        val newGrid = grid.map { row ->
+            row.map { cell ->
+                val answer = clueCells[Pair(cell.row, cell.col)]
+                if (answer != null) cell.copy(userInput = answer) else cell
+            }
+        }
+        return copy(grid = newGrid)
     }
 }

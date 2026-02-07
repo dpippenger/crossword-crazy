@@ -97,17 +97,22 @@ class CrosswordScreenTest {
             }
         }
 
+        // Fill cells via ViewModel API instead of direct mutation
         val puzzle = viewModel.uiState.value.puzzle!!
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = 'X'
+                viewModel.onCellSelected(cell.row, cell.col)
+                viewModel.onLetterInput('X')
             }
         }
+
+        composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("Clear").performClick()
         composeTestRule.waitForIdle()
 
-        val allCleared = puzzle.grid.flatten().all { it.userInput == null }
+        val clearedPuzzle = viewModel.uiState.value.puzzle!!
+        val allCleared = clearedPuzzle.grid.flatten().all { it.userInput == null }
         assert(allCleared)
     }
 }
