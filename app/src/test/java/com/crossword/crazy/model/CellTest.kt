@@ -42,9 +42,9 @@ class CellTest {
     }
 
     @Test
-    fun `clear removes user input`() {
+    fun `copy with null userInput clears input`() {
         val cell = Cell(row = 0, col = 0, answer = 'A', userInput = 'B')
-        cell.clear()
-        assertThat(cell.userInput).isNull()
+        val cleared = cell.copy(userInput = null)
+        assertThat(cleared.userInput).isNull()
     }
 }

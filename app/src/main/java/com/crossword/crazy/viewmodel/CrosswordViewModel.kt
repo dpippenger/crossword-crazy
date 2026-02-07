@@ -83,12 +83,11 @@ class CrosswordViewModel : ViewModel() {
         val currentState = _uiState.value
         val puzzle = currentState.puzzle ?: return
         val (row, col) = currentState.selectedCell ?: return
-
         val cell = puzzle.getCell(row, col) ?: return
         if (cell.isBlack) return
 
-        cell.userInput = letter.uppercaseChar()
-
+        val newPuzzle = puzzle.withCellInput(row, col, letter.uppercaseChar())
+        _uiState.value = currentState.copy(puzzle = newPuzzle)
         moveToNextCell()
         checkIfPuzzleComplete()
     }
@@ -97,24 +96,28 @@ class CrosswordViewModel : ViewModel() {
         val currentState = _uiState.value
         val puzzle = currentState.puzzle ?: return
         val (row, col) = currentState.selectedCell ?: return
-
         val cell = puzzle.getCell(row, col) ?: return
         if (cell.isBlack) return
 
         if (cell.userInput != null) {
-            cell.userInput = null
+            val newPuzzle = puzzle.withCellInput(row, col, null)
+            _uiState.value = currentState.copy(
+                puzzle = newPuzzle,
+                isPuzzleComplete = false,
+                showCompletionDialog = false
+            )
         } else {
             moveToPreviousCell()
             val newState = _uiState.value
             val (newRow, newCol) = newState.selectedCell ?: return
-            val newCell = puzzle.getCell(newRow, newCol)
-            newCell?.userInput = null
+            val currentPuzzle = newState.puzzle ?: return
+            val newPuzzle = currentPuzzle.withCellInput(newRow, newCol, null)
+            _uiState.value = newState.copy(
+                puzzle = newPuzzle,
+                isPuzzleComplete = false,
+                showCompletionDialog = false
+            )
         }
-
-        _uiState.value = currentState.copy(
-            isPuzzleComplete = false,
-            showCompletionDialog = false
-        )
     }
 
     fun checkAnswers() {
@@ -131,15 +134,20 @@ class CrosswordViewModel : ViewModel() {
         val clue = currentState.selectedClue ?: return
         val puzzle = currentState.puzzle ?: return
 
-        puzzle.revealAnswer(clue)
-        _uiState.value = currentState.copy(checkResult = CheckResult.NONE)
+        val newPuzzle = puzzle.withRevealedClue(clue)
+        _uiState.value = currentState.copy(
+            puzzle = newPuzzle,
+            checkResult = CheckResult.NONE
+        )
         checkIfPuzzleComplete()
     }
 
     fun clearAll() {
-        val puzzle = _uiState.value.puzzle ?: return
-        puzzle.clearAll()
-        _uiState.value = _uiState.value.copy(
+        val currentState = _uiState.value
+        val puzzle = currentState.puzzle ?: return
+        val newPuzzle = puzzle.withClearedInput()
+        _uiState.value = currentState.copy(
+            puzzle = newPuzzle,
             isPuzzleComplete = false,
             showCompletionDialog = false,
             checkResult = CheckResult.NONE
@@ -184,7 +192,7 @@ class CrosswordViewModel : ViewModel() {
             }
         }
 
-        _uiState.value = currentState.copy(selectedCell = Pair(nextRow, nextCol))
+        _uiState.value = _uiState.value.copy(selectedCell = Pair(nextRow, nextCol))
         updateSelectedClue()
     }
 
@@ -222,7 +230,7 @@ class CrosswordViewModel : ViewModel() {
             }
         }
 
-        _uiState.value = currentState.copy(selectedCell = Pair(prevRow, prevCol))
+        _uiState.value = _uiState.value.copy(selectedCell = Pair(prevRow, prevCol))
         updateSelectedClue()
     }
 
@@ -239,7 +247,7 @@ class CrosswordViewModel : ViewModel() {
             }
         }
 
-        _uiState.value = currentState.copy(selectedClue = clue)
+        _uiState.value = _uiState.value.copy(selectedClue = clue)
     }
 
     private fun findFirstEmptyCell(puzzle: CrosswordPuzzle): Pair<Int, Int>? {

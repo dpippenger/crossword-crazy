@@ -79,53 +79,65 @@ class CrosswordPuzzleTest {
 
     @Test
     fun `isComplete returns true when all cells filled`() {
+        var filledPuzzle = puzzle
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = cell.answer
+                filledPuzzle = filledPuzzle.withCellInput(cell.row, cell.col, cell.answer)
             }
         }
-        assertThat(puzzle.isComplete()).isTrue()
+        assertThat(filledPuzzle.isComplete()).isTrue()
     }
 
     @Test
     fun `checkAnswers returns true when all answers correct`() {
+        var filledPuzzle = puzzle
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = cell.answer
+                filledPuzzle = filledPuzzle.withCellInput(cell.row, cell.col, cell.answer)
             }
         }
-        assertThat(puzzle.checkAnswers()).isTrue()
+        assertThat(filledPuzzle.checkAnswers()).isTrue()
     }
 
     @Test
     fun `checkAnswers returns false when answers incorrect`() {
+        var filledPuzzle = puzzle
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = 'X'
+                filledPuzzle = filledPuzzle.withCellInput(cell.row, cell.col, 'X')
             }
         }
-        assertThat(puzzle.checkAnswers()).isFalse()
+        assertThat(filledPuzzle.checkAnswers()).isFalse()
     }
 
     @Test
-    fun `clearAll removes all user input`() {
+    fun `withClearedInput removes all user input`() {
+        var filledPuzzle = puzzle
         puzzle.grid.flatten().forEach { cell ->
             if (!cell.isBlack) {
-                cell.userInput = 'X'
+                filledPuzzle = filledPuzzle.withCellInput(cell.row, cell.col, 'X')
             }
         }
-        puzzle.clearAll()
-        assertThat(puzzle.grid.flatten().all { it.userInput == null }).isTrue()
+        val clearedPuzzle = filledPuzzle.withClearedInput()
+        assertThat(clearedPuzzle.grid.flatten().all { it.userInput == null }).isTrue()
     }
 
     @Test
-    fun `revealAnswer fills in correct answer for clue`() {
+    fun `withRevealedClue fills in correct answer for clue`() {
         val clue = puzzle.acrossClues[0]
-        puzzle.revealAnswer(clue)
+        val revealedPuzzle = puzzle.withRevealedClue(clue)
 
-        val cells = clue.getCells(puzzle.grid)
+        val cells = clue.getCells(revealedPuzzle.grid)
         assertThat(cells[0].userInput).isEqualTo('C')
         assertThat(cells[1].userInput).isEqualTo('A')
         assertThat(cells[2].userInput).isEqualTo('T')
+    }
+
+    @Test
+    fun `withCellInput sets input on specified cell`() {
+        val newPuzzle = puzzle.withCellInput(0, 0, 'Z')
+        assertThat(newPuzzle.getCell(0, 0)?.userInput).isEqualTo('Z')
+        // Original puzzle is unchanged
+        assertThat(puzzle.getCell(0, 0)?.userInput).isNull()
     }
 }
